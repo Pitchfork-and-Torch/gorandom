@@ -61,5 +61,10 @@ export function bumpPersonalJumps(): number {
 }
 
 export function chaosScore(jumps: number, deepCuts: number, mediaFinds: number): number {
-  return jumps * 10 + deepCuts * 25 + mediaFinds * 15;
+  // Corrupted counters (NaN/Inf/negatives) would paint NaN or negative chaos
+  // into the HUD. Distinct from loadPersonalJumps / formatCount finite guards.
+  const j = Number.isFinite(jumps) && jumps > 0 ? jumps : 0;
+  const d = Number.isFinite(deepCuts) && deepCuts > 0 ? deepCuts : 0;
+  const m = Number.isFinite(mediaFinds) && mediaFinds > 0 ? mediaFinds : 0;
+  return j * 10 + d * 25 + m * 15;
 }
