@@ -307,7 +307,10 @@ export function formatCount(n: number): string {
 }
 
 export function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return "—";
+  const diff = Date.now() - t;
+  if (diff < 0) return "just now";
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m`;
