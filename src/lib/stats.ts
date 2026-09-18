@@ -39,7 +39,12 @@ export function computeLiveStats(personalJumps: number): LiveStats {
 
 export function loadPersonalJumps(): number {
   try {
-    return Number(localStorage.getItem(JUMPS_KEY) || 0) || 0;
+    // Corrupted localStorage can store "Infinity" / negatives. `Number("Infinity") || 0`
+    // keeps Infinity (truthy), which poisons teleportsToday / totalChaos in
+    // computeLiveStats. Distinct from formatCount's display-side finite guard.
+    const n = Number(localStorage.getItem(JUMPS_KEY) || 0);
+    if (!Number.isFinite(n) || n < 0) return 0;
+    return Math.floor(n);
   } catch {
     return 0;
   }
