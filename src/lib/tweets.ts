@@ -468,11 +468,16 @@ export function pickRandomTweet(
 
     }
 
-    // Soft fallback: any account if filters wiped the mesh sample
-
-    const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
-
-    return expandAccount(user);
+    // Soft fallback: still honor lang / excludeId (do not reintroduce replies —
+    // expandAccount rows are kind=account so reply/repost toggles do not apply).
+    for (let guard = 0; guard < 48; guard++) {
+      const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
+      const exp = expandAccount(user);
+      if (matchesFilters(exp, filters, excludeId)) return exp;
+    }
+    // Last resort: filtered mesh miss with empty ACCOUNT_LIST edge — keep prior
+    // expand so pickRandomTweet never throws.
+    return expandAccount(ACCOUNT_LIST[0] ?? "unknown");
 
   }
 
