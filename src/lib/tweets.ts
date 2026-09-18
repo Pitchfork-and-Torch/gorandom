@@ -532,7 +532,18 @@ export function pickRandomTweet(
     if (poolList.length === 0) {
       poolList = TWEET_POOL.filter((t) => matchesFilters(t, filters, excludeId));
     }
-    if (poolList.length === 0) poolList = TWEET_POOL;
+    // Never dump the raw pool: that reintroduces replies/reposts/lang the user
+    // filtered out. Prefer a filtered account mesh row over an unfiltered tweet.
+    if (poolList.length === 0) {
+      for (let guard = 0; guard < 48; guard++) {
+        const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
+        const exp = expandAccount(user);
+        if (matchesFilters(exp, filters, excludeId)) {
+          poolList = [exp];
+          break;
+        }
+      }
+    }
 
     if (filters.mode === "engagement") {
 
@@ -604,9 +615,14 @@ export function pickRandomTweet(
     // reply/repost on tweet rows). filterTweets(deep) skipped those toggles, and
     // an empty list made pickRandomTweet return undefined.
     let soft = TWEET_POOL.filter((t) => matchesFilters(t, filters, excludeId));
-    if (soft.length === 0) soft = TWEET_POOL;
     if (soft.length) {
       return soft[Math.floor(Math.random() * soft.length)]!;
+    }
+    // Same rule as engagement/media/recent: do not fall through to raw TWEET_POOL.
+    for (let guard = 0; guard < 48; guard++) {
+      const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
+      const exp = expandAccount(user);
+      if (matchesFilters(exp, filters, excludeId)) return exp;
     }
     return expandAccount(ACCOUNT_LIST[0] ?? "unknown");
 
