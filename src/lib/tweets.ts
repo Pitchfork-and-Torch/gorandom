@@ -591,13 +591,26 @@ export function pickRandomTweet(
 
     }
 
+    // Soft fallback when deep pool is empty: still honor lang/excludeId (and
+    // reply/repost on tweet rows). filterTweets(deep) skipped those toggles, and
+    // an empty list made pickRandomTweet return undefined.
+    let soft = TWEET_POOL.filter((t) => matchesFilters(t, filters, excludeId));
+    if (soft.length === 0) soft = TWEET_POOL;
+    if (soft.length) {
+      return soft[Math.floor(Math.random() * soft.length)]!;
+    }
+    return expandAccount(ACCOUNT_LIST[0] ?? "unknown");
+
   }
 
 
 
   const poolList = filterTweets(filters, excludeId);
 
-  return poolList[Math.floor(Math.random() * poolList.length)]!;
+  if (poolList.length) {
+    return poolList[Math.floor(Math.random() * poolList.length)]!;
+  }
+  return expandAccount(ACCOUNT_LIST[0] ?? "unknown");
 
 }
 
