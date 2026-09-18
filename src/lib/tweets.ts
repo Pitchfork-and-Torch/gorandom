@@ -198,27 +198,43 @@ export function filterTweets(
   return [...tweets, ...accounts];
 }
 
+function matchesFilters(
+  t: RandomTweet,
+  filters: ChaosFilters,
+  excludeId?: string,
+): boolean {
+  if (excludeId && t.id === excludeId) return false;
+  if (t.kind !== "account") {
+    if (filters.excludeReplies && t.isReply) return false;
+    if (filters.excludeRetweets && t.isRetweet) return false;
+  }
+  // Match engagement/media/recent: "en" is soft default and does not hard-filter.
+  if (filters.lang !== "any" && filters.lang !== "en" && t.lang !== filters.lang)
+    return false;
+  return true;
+}
+
 export function pickRandomTweet(
   filters: ChaosFilters = DEFAULT_FILTERS,
   excludeId?: string,
 ): RandomTweet {
   if (filters.mode === "pure") {
     const roll = Math.random();
-    // ~30% real curated posts when available
+    // ~30% real curated posts when available  -  still honor reply/repost/lang toggles
     if (roll < 0.3 && TWEET_POOL.length) {
-      let pick = TWEET_POOL[Math.floor(Math.random() * TWEET_POOL.length)]!;
-      let guard = 0;
-      while (pick.id === excludeId && guard++ < 8) {
-        pick = TWEET_POOL[Math.floor(Math.random() * TWEET_POOL.length)]!;
+      const eligible = TWEET_POOL.filter((t) => matchesFilters(t, filters, excludeId));
+      if (eligible.length) {
+        return eligible[Math.floor(Math.random() * eligible.length)]!;
       }
-      return pick;
     }
-    // Account mesh (O(1)  -  never scans 100k)
-    let user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
-    let guard = 0;
-    while (`acct_${user}` === excludeId && guard++ < 8) {
-      user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
+    // Account mesh (O(1)  -  never scans 100k); apply same filters to expanded rows
+    for (let guard = 0; guard < 24; guard++) {
+      const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
+      const exp = expandAccount(user);
+      if (matchesFilters(exp, filters, excludeId)) return exp;
     }
+    // Soft fallback: any account if filters wiped the mesh sample
+    const user = ACCOUNT_LIST[Math.floor(Math.random() * ACCOUNT_LIST.length)]!;
     return expandAccount(user);
   }
 
@@ -259,7 +275,7 @@ export function pickRandomTweet(
       if (
         exp.followers < DEEP_CUT_FOLLOWERS &&
         !exp.verified &&
-        exp.id !== excludeId
+        matchesFilters(exp, filters, excludeId)
       ) {
         return exp;
       }
@@ -268,7 +284,7 @@ export function pickRandomTweet(
       (t) =>
         t.followers < DEEP_CUT_FOLLOWERS &&
         !t.verified &&
-        t.id !== excludeId,
+        matchesFilters(t, filters, excludeId),
     );
     if (deepTweets.length) {
       return deepTweets[Math.floor(Math.random() * deepTweets.length)]!;
