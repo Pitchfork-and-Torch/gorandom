@@ -667,10 +667,15 @@ export function formatCount(n: number): string {
 
 
 export function relativeTime(iso: string): string {
+  // null/non-string createdAt (corrupt pool / JSON) is coerced by Date to
+  // epoch (getTime()===0), which painted "56y" instead of unknown. Distinct
+  // from the invalid-ISO finite guard below.
+  if (typeof iso !== "string" || !iso) return "unknown";
 
   const t = new Date(iso).getTime();
 
   if (!Number.isFinite(t)) return "unknown";
+
 
   const diff = Date.now() - t;
 
