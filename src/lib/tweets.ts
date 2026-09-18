@@ -650,6 +650,9 @@ export function pickSpinHandle(): string {
 
 
 export function formatCount(n: number): string {
+  // Corrupted pool rows / bad math can pass NaN/Inf; String(NaN) and "InfinityM"
+  // leak into the tweet card. Distinct from relativeTime's invalid-ISO guard.
+  if (!Number.isFinite(n) || n < 0) return "0";
 
   if (n >= 1_000_000)
 
