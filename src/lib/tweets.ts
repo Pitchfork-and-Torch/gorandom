@@ -517,6 +517,12 @@ export function pickRandomTweet(
 
     });
 
+    // Soft fallback when mode-specific pool is empty: still honor reply/repost/lang
+    // and excludeId. Dumping the raw TWEET_POOL ignored those toggles (distinct from
+    // pure-mode soft fallback, which already used matchesFilters).
+    if (poolList.length === 0) {
+      poolList = TWEET_POOL.filter((t) => matchesFilters(t, filters, excludeId));
+    }
     if (poolList.length === 0) poolList = TWEET_POOL;
 
     if (filters.mode === "engagement") {
