@@ -270,6 +270,15 @@ const HIGH_ENGAGEMENT_LIKES = 50;
 
 const RECENT_MS = 1000 * 60 * 60 * 24 * 21;
 
+/** Age in [0, RECENT_MS). Future / invalid timestamps must not count as recent. */
+function isRecentCreatedAt(createdAt: string, now = Date.now()): boolean {
+  const t = new Date(createdAt).getTime();
+  if (!Number.isFinite(t)) return false;
+  const age = now - t;
+  return age >= 0 && age < RECENT_MS;
+}
+
+
 
 
 export function tweetUrl(t: Pick<RandomTweet, "user" | "id" | "kind">): string {
@@ -344,7 +353,7 @@ export function filterTweets(
 
       if (filters.mode === "recent")
 
-        return now - new Date(t.createdAt).getTime() < RECENT_MS;
+        return isRecentCreatedAt(t.createdAt, now);
 
       return true;
 
@@ -511,7 +520,7 @@ export function pickRandomTweet(
 
       if (filters.mode === "recent")
 
-        return Date.now() - new Date(t.createdAt).getTime() < RECENT_MS;
+        return isRecentCreatedAt(t.createdAt);
 
       return true;
 
