@@ -1,0 +1,264 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-bg: #030308;
+  --color-bg-elevated: #0a0a12;
+  --color-bg-panel: #0e0e18;
+  --color-bg-card: #12121c;
+  --color-fg: #f0f0f8;
+  --color-fg-muted: #9a9ab0;
+  --color-fg-subtle: #5c5c72;
+  --color-border: #1e1e2e;
+  --color-border-strong: #2e2e44;
+  --color-cyan: #22d3ee;
+  --color-magenta: #e879f9;
+  --color-violet: #a78bfa;
+  --color-lime: #a3e635;
+  --color-rose: #fb7185;
+  --color-accent: #22d3ee;
+  --color-accent-fg: #030308;
+  --color-ring: #22d3ee;
+  --color-glow: #22d3ee;
+
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--color-cyan) 45%, transparent);
+  --shadow-card: 0 24px 64px -20px rgb(0 0 0 / 0.8), 0 0 0 1px color-mix(in oklab, var(--color-cyan) 12%, transparent);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+    background: var(--color-bg);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-cyan) 35%, transparent);
+    color: var(--color-fg);
+  }
+}
+
+@layer utilities {
+  .scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      color-mix(in oklab, var(--color-cyan) 3%, transparent) 2px,
+      color-mix(in oklab, var(--color-cyan) 3%, transparent) 4px
+    );
+  }
+
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .grid-cyber {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--color-cyan) 8%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--color-magenta) 6%, transparent) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, black 15%, transparent 72%);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 24px color-mix(in oklab, var(--color-cyan) 50%, transparent);
+  }
+
+  .text-glow-magenta {
+    text-shadow: 0 0 20px color-mix(in oklab, var(--color-magenta) 45%, transparent);
+  }
+
+  .btn-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-cyan) 40%, transparent),
+      0 0 32px -4px color-mix(in oklab, var(--color-cyan) 55%, transparent),
+      inset 0 1px 0 color-mix(in oklab, white 20%, transparent);
+  }
+
+  .btn-glow:hover:not(:disabled) {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-cyan) 60%, transparent),
+      0 0 48px -2px color-mix(in oklab, var(--color-cyan) 70%, transparent),
+      inset 0 1px 0 color-mix(in oklab, white 25%, transparent);
+  }
+
+  .card-glow {
+    box-shadow: var(--shadow-card);
+  }
+
+  .portal-ring {
+    border: 2px solid color-mix(in oklab, var(--color-cyan) 50%, transparent);
+    box-shadow:
+      0 0 40px color-mix(in oklab, var(--color-cyan) 30%, transparent),
+      0 0 80px color-mix(in oklab, var(--color-magenta) 20%, transparent),
+      inset 0 0 40px color-mix(in oklab, var(--color-violet) 15%, transparent);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes float-particle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-shift {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 1px);
+  }
+  40% {
+    transform: translate(2px, -1px);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(1px, 1px);
+  }
+}
+
+@keyframes portal-pulse {
+  0%,
+  100% {
+    transform: scale(0.92);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes stream {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 200%;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-glitch {
+  animation: glitch-shift 0.35s steps(2) infinite;
+}
+
+.animate-portal {
+  animation: portal-pulse 1.4s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--color-cyan);
+  animation: float-particle linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
